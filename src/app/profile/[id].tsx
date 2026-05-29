@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { VideoPlayer } from '@/components/features/VideoPlayer';
+import { useVideos } from '@/lib/hooks/useVideos';
 import { supabase } from '@/lib/supabase';
 
 type Profile = {
@@ -24,6 +26,7 @@ export default function MusicianProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { videos } = useVideos(id);
 
   useEffect(() => {
     supabase
@@ -100,6 +103,15 @@ export default function MusicianProfileScreen() {
               </View>
             ))}
           </View>
+        </View>
+      )}
+
+      {videos.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Videos</Text>
+          {videos.map(video => (
+            <VideoPlayer key={video.id} url={video.url} />
+          ))}
         </View>
       )}
     </ScrollView>

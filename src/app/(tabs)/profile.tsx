@@ -15,9 +15,11 @@ import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
+import { VideoPlayer } from '@/components/features/VideoPlayer';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useProfile } from '@/lib/hooks/useProfile';
 import { useSession } from '@/lib/hooks/useSession';
+import { useVideos } from '@/lib/hooks/useVideos';
 import { supabase } from '@/lib/supabase';
 
 export default function ProfileScreen() {
@@ -30,6 +32,8 @@ export default function ProfileScreen() {
   const [genres, setGenres] = useState('');
   const [instruments, setInstruments] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const { videos, addVideo } = useVideos(session?.user.id);
 
   useEffect(() => {
     if (profile) {
@@ -98,6 +102,45 @@ export default function ProfileScreen() {
       instruments: instruments ? instruments.split(',').map(i => i.trim()).filter(Boolean) : null,
     });
     if (success) Alert.alert('Perfil guardado');
+  }
+
+  async function handlePickVideo() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso necesario', 'Necesitamos acceso a tu galería para subir videos.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+      quality: 0.7,
+    });
+
+    if (result.canceled || !result.assets[0]) return;
+
+    setUploadingVideo(true);
+    try {
+      const asset = result.assets[0];
+      const ext = asset.uri.split('.').pop() ?? 'mp4';
+      const path = `${session!.user.id}/${Date.now()}.${ext}`;
+
+      const base64 = await FileSystem.readAsStringAsync(asset.uri, { encoding: 'base64' as any });
+      const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+
+      const { error: uploadError } = await supabase.storage
+        .from('videos')
+        .upload(path, byteArray, { contentType: `video/${ext}`, upsert: false });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('videos').getPublicUrl(path);
+      await addVideo(data.publicUrl);
+      Alert.alert('Video subido');
+    } catch (e: any) {
+      Alert.alert('Error al subir el video', e.message);
+    } finally {
+      setUploadingVideo(false);
+    }
   }
 
   async function handleLogout() {
@@ -201,6 +244,19 @@ export default function ProfileScreen() {
           )}
         </Pressable>
 
+        <View style={styles.videoSection}>
+          <Text style={styles.videoTitle}>Mis videos</Text>
+          <Pressable style={styles.uploadVideoButton} onPress={handlePickVideo} disabled={uploadingVideo}>
+            {uploadingVideo
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.uploadVideoText}>+ Subir video</Text>
+            }
+          </Pressable>
+          {videos.map(video => (
+            <VideoPlayer key={video.id} url={video.url} />
+          ))}
+        </View>
+
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Cerrar sesión</Text>
         </Pressable>
@@ -261,6 +317,16 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   saveButtonText: { color: '#000', fontSize: 16, fontWeight: '600' },
+  videoSection: { gap: 12 },
+  videoTitle: { color: '#888', fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
+  uploadVideoButton: {
+    borderWidth: 1,
+    borderColor: '#333',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  uploadVideoText: { color: '#fff', fontSize: 15 },
   logoutButton: {
     borderWidth: 1,
     borderColor: '#333',

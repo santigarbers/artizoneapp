@@ -45,7 +45,8 @@
         {
           "locationWhenInUsePermission": "Artizone necesita tu ubicación para mostrarte músicos cercanos."
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,

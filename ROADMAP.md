@@ -55,8 +55,8 @@ Un usuario puede registrarse, completar su perfil con foto y volver a entrar sin
 ### Perfil de otro músico
 - [x] Pantalla de perfil ajeno (solo lectura)
 - [x] Mostrar géneros, instrumentos, bio
-- [ ] Mostrar videos del músico
-- [ ] Subir videos propios a Supabase Storage
+- [x] Mostrar videos del músico
+- [x] Subir videos propios a Supabase Storage
 
 ### Criterio de éxito de Fase 2
 El usuario ve músicos cercanos en el mapa y puede explorar sus perfiles con videos.
