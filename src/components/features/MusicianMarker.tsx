@@ -8,7 +8,7 @@ type Props = {
 
 export function MusicianMarker({ musician }: Props) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="none">
       <View style={styles.bubble}>
         {musician.avatar_url ? (
           <Image source={{ uri: musician.avatar_url }} style={styles.avatar} contentFit="cover" />
