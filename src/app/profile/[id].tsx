@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { VideoPlayer } from '@/components/features/VideoPlayer';
+import { VideoCarousel } from '@/components/features/VideoCarousel';
 import { useVideos } from '@/lib/hooks/useVideos';
 import { supabase } from '@/lib/supabase';
 
@@ -109,9 +109,7 @@ export default function MusicianProfileScreen() {
       {videos.length > 0 && (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Videos</Text>
-          {videos.map(video => (
-            <VideoPlayer key={video.id} url={video.url} />
-          ))}
+          <VideoCarousel videos={videos} />
         </View>
       )}
     </ScrollView>

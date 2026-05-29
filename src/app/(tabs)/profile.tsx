@@ -15,7 +15,7 @@ import { Image } from 'expo-image';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
-import { VideoPlayer } from '@/components/features/VideoPlayer';
+import { VideoCarousel } from '@/components/features/VideoCarousel';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useProfile } from '@/lib/hooks/useProfile';
 import { useSession } from '@/lib/hooks/useSession';
@@ -252,9 +252,7 @@ export default function ProfileScreen() {
               : <Text style={styles.uploadVideoText}>+ Subir video</Text>
             }
           </Pressable>
-          {videos.map(video => (
-            <VideoPlayer key={video.id} url={video.url} />
-          ))}
+          <VideoCarousel videos={videos} />
         </View>
 
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
