@@ -67,15 +67,15 @@ El usuario ve músicos cercanos en el mapa y puede explorar sus perfiles con vid
 > Objetivo: enviar y recibir invitaciones para conectar con otros músicos.
 
 ### Envío de invitaciones
-- [ ] Crear tabla `connections` en Supabase
-- [ ] Botón "Conectar" en el perfil ajeno
-- [ ] Guardar invitación con estado `pending`
-- [ ] Evitar duplicados (no poder enviar dos veces al mismo usuario)
+- [x] Crear tabla `connections` en Supabase
+- [x] Botón "Conectar" en el perfil ajeno
+- [x] Guardar invitación con estado `pending`
+- [x] Evitar duplicados (no poder enviar dos veces al mismo usuario)
 
 ### Recepción de invitaciones
-- [ ] Pantalla de invitaciones recibidas
-- [ ] Aceptar invitación (cambia estado a `accepted`)
-- [ ] Rechazar invitación (cambia estado a `rejected`)
+- [x] Pantalla de invitaciones recibidas
+- [x] Aceptar invitación (cambia estado a `accepted`)
+- [x] Rechazar invitación (cambia estado a `rejected`)
 
 ### Notificaciones
 - [ ] Push notification al recibir una invitación

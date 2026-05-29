@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +11,8 @@ import {
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { VideoCarousel } from '@/components/features/VideoCarousel';
+import { useConnections } from '@/lib/hooks/useConnections';
+import { useSession } from '@/lib/hooks/useSession';
 import { useVideos } from '@/lib/hooks/useVideos';
 import { supabase } from '@/lib/supabase';
 
@@ -24,9 +27,12 @@ type Profile = {
 
 export default function MusicianProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { session } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState(false);
   const { videos } = useVideos(id);
+  const { getConnectionWith, sendConnection, fetchConnections } = useConnections(session?.user.id);
 
   useEffect(() => {
     supabase
@@ -38,7 +44,49 @@ export default function MusicianProfileScreen() {
         setProfile(data);
         setLoading(false);
       });
+    fetchConnections();
   }, [id]);
+
+  async function handleConnect() {
+    setConnecting(true);
+    const { error } = await sendConnection(id);
+    setConnecting(false);
+    if (error) {
+      Alert.alert('Error', error.message);
+    } else {
+      Alert.alert('Invitación enviada');
+    }
+  }
+
+  const connection = getConnectionWith(id);
+
+  function renderConnectButton() {
+    if (!connection) {
+      return (
+        <Pressable style={styles.connectButton} onPress={handleConnect} disabled={connecting}>
+          {connecting
+            ? <ActivityIndicator color="#000" />
+            : <Text style={styles.connectButtonText}>Conectar</Text>
+          }
+        </Pressable>
+      );
+    }
+    if (connection.status === 'pending') {
+      return (
+        <View style={styles.statusButton}>
+          <Text style={styles.statusText}>Invitación pendiente</Text>
+        </View>
+      );
+    }
+    if (connection.status === 'accepted') {
+      return (
+        <View style={[styles.statusButton, styles.statusAccepted]}>
+          <Text style={styles.statusText}>Conectados</Text>
+        </View>
+      );
+    }
+    return null;
+  }
 
   if (loading) {
     return (
@@ -79,6 +127,8 @@ export default function MusicianProfileScreen() {
       {profile.bio && (
         <Text style={styles.bio}>{profile.bio}</Text>
       )}
+
+      {renderConnectButton()}
 
       {profile.genres && profile.genres.length > 0 && (
         <View style={styles.section}>
@@ -142,6 +192,22 @@ const styles = StyleSheet.create({
   avatarInitial: { color: '#fff', fontSize: 40, fontWeight: 'bold' },
   username: { color: '#fff', fontSize: 22, fontWeight: 'bold', textAlign: 'center' },
   bio: { color: '#aaa', fontSize: 15, lineHeight: 22, textAlign: 'center' },
+  connectButton: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  connectButtonText: { color: '#000', fontSize: 16, fontWeight: '600' },
+  statusButton: {
+    borderWidth: 1,
+    borderColor: '#333',
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  statusAccepted: { borderColor: '#2a4a2a', backgroundColor: '#1a2e1a' },
+  statusText: { color: '#888', fontSize: 15 },
   error: { color: '#ff4444', fontSize: 15 },
   section: { gap: 8 },
   sectionTitle: { color: '#888', fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
