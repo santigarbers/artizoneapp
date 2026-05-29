@@ -15,7 +15,7 @@ y una vez aceptadas se abre un chat privado entre ambos.
 | UI | React Native StyleSheet + componentes propios | Sin librería de UI externa por ahora |
 | Navegación | Expo Router v3 | Basado en archivos, similar a Next.js |
 | Auth + DB | Supabase | PostgreSQL, Auth, Storage, Realtime |
-| Mapa | Mapbox (react-native-mapbox-gl) | Capa gratuita más generosa que Google Maps |
+| Mapa | react-native-maps | Compatible con Expo Go, Apple Maps en iOS |
 | Backend logic | Supabase Edge Functions | Serverless, solo si hace falta |
 | Versionado | GitHub | Ramas por feature, nunca commitear directo a main |
 | Deploy web | Vercel | Solo si se hace versión web en el futuro |
@@ -111,7 +111,7 @@ created_at  timestamptz default now()
 
 - **Expo Router** para navegación, no React Navigation standalone
 - **Supabase Realtime** para el chat, no WebSockets propios
-- **Mapbox** para el mapa, no Google Maps
+- **react-native-maps** para el mapa (Apple Maps en iOS) — compatible con Expo Go
 - **Supabase Auth** para autenticación — soporte email/password y OAuth (Google)
 - **geography** de PostGIS para ubicaciones, permite queries de distancia eficientes
 

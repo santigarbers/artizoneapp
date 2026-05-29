@@ -11,7 +11,7 @@ Marcá los items con [x] a medida que los completás.
 ### Setup inicial
 - [x] Crear proyecto Expo con Expo Router
 - [ ] Configurar ESLint y Prettier
-- [ ] Conectar repositorio a GitHub
+- [x] Conectar repositorio a GitHub
 - [x] Configurar variables de entorno (.env.local)
 - [x] Inicializar cliente de Supabase (`lib/supabase.ts`)
 
@@ -39,16 +39,18 @@ Un usuario puede registrarse, completar su perfil con foto y volver a entrar sin
 > Objetivo: ver músicos cercanos en el mapa y consultar sus perfiles.
 
 ### Ubicación
-- [ ] Pedir permiso de ubicación al usuario
-- [ ] Guardar coordenadas del usuario en `profiles` (PostGIS)
-- [ ] Actualizar ubicación al abrir la app
+- [x] Pedir permiso de ubicación al usuario
+- [x] Guardar coordenadas del usuario en `profiles` (PostGIS)
+- [x] Actualizar ubicación al abrir la app
 
 ### Mapa
-- [ ] Integrar Mapbox en Expo
-- [ ] Mostrar mapa centrado en la ubicación del usuario
-- [ ] Cargar músicos cercanos desde Supabase (query por distancia)
-- [ ] Mostrar marcadores de músicos en el mapa
+- [x] Integrar react-native-maps en Expo
+- [x] Mostrar mapa centrado en la ubicación del usuario
+- [x] Cargar músicos cercanos desde Supabase (query por distancia)
+- [x] Mostrar marcadores de músicos en el mapa
+- [x] Marcador del músico muestra su avatar
 - [ ] Tap en marcador abre preview del músico
+
 
 ### Perfil de otro músico
 - [ ] Pantalla de perfil ajeno (solo lectura)
@@ -132,5 +134,5 @@ La app puede ser instalada y usada por alguien que no la conoce, sin confundirse
 ---
 
 ## Fase activa ahora
-**FASE 1 — Setup inicial y Autenticación**
+**FASE 2 — Descubrimiento: Mapa interactivo**
 

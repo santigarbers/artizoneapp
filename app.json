@@ -8,7 +8,10 @@
     "scheme": "artizoneapp",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Artizone necesita tu ubicación para mostrarte músicos cercanos."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +39,13 @@
         }
       ],
       "expo-asset",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Artizone necesita tu ubicación para mostrarte músicos cercanos."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
