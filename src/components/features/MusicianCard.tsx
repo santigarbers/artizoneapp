@@ -1,7 +1,7 @@
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { Image } from 'expo-image';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { router } from 'expo-router';
 import { Musician } from '@/lib/hooks/useNearbyMusicians';
 
 type Props = {
@@ -10,7 +10,6 @@ type Props = {
 };
 
 export function MusicianCard({ musician, onClose }: Props) {
-  const tabBarHeight = useBottomTabBarHeight();
   const translateY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export function MusicianCard({ musician, onClose }: Props) {
   if (!musician) return null;
 
   return (
-    <Animated.View style={[styles.container, { bottom: tabBarHeight + 24, transform: [{ translateY }] }]}>
+    <Animated.View style={[styles.container, { transform: [{ translateY }] }]}>
       <View style={styles.handle} />
 
       <View style={styles.header}>
@@ -86,6 +85,13 @@ export function MusicianCard({ musician, onClose }: Props) {
           ))}
         </View>
       )}
+
+      <Pressable
+        style={styles.profileButton}
+        onPress={() => router.push(`/profile/${musician.id}`)}
+      >
+        <Text style={styles.profileButtonText}>Ver perfil completo</Text>
+      </Pressable>
     </Animated.View>
   );
 }
@@ -93,7 +99,7 @@ export function MusicianCard({ musician, onClose }: Props) {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 80,
+    bottom: 16,
     left: 16,
     right: 16,
     backgroundColor: '#111',
@@ -195,5 +201,17 @@ const styles = StyleSheet.create({
   tagText: {
     color: '#ccc',
     fontSize: 12,
+  },
+  profileButton: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  profileButtonText: {
+    color: '#000',
+    fontSize: 15,
+    fontWeight: '600',
   },
 });

@@ -49,12 +49,12 @@ Un usuario puede registrarse, completar su perfil con foto y volver a entrar sin
 - [x] Cargar músicos cercanos desde Supabase (query por distancia)
 - [x] Mostrar marcadores de músicos en el mapa
 - [x] Marcador del músico muestra su avatar
-- [ ] Tap en marcador despliega tarjeta flotante con info del músico (avatar, nombre, bio, géneros, instrumentos)
+- [x] Tap en marcador despliega tarjeta flotante con info del músico (avatar, nombre, bio, géneros, instrumentos)
 
 
 ### Perfil de otro músico
-- [ ] Pantalla de perfil ajeno (solo lectura)
-- [ ] Mostrar géneros, instrumentos, bio
+- [x] Pantalla de perfil ajeno (solo lectura)
+- [x] Mostrar géneros, instrumentos, bio
 - [ ] Mostrar videos del músico
 - [ ] Subir videos propios a Supabase Storage
 
