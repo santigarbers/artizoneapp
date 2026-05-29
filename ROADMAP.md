@@ -112,6 +112,7 @@ Dos músicos conectados pueden mandarse mensajes en tiempo real.
 > Objetivo: la app está lista para mostrarle a usuarios reales.
 
 ### UX general
+- [x] Rediseño del bottom navigation menu
 - [ ] Pantallas de carga (skeletons)
 - [ ] Manejo de errores con mensajes claros al usuario
 - [ ] Estados vacíos (sin músicos cerca, sin conexiones, sin mensajes)
