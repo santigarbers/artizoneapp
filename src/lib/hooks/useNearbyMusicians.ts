@@ -26,7 +26,7 @@ export function useNearbyMusicians(coords: Coords | null, currentUserId?: string
       .rpc('nearby_musicians', {
         lat: coords.latitude,
         lng: coords.longitude,
-        radius_meters: 5000,
+        radius_meters: 999999999,
       })
       .then(({ data }) => {
         const others = (data ?? []).filter((m: Musician) => m.id !== currentUserId);

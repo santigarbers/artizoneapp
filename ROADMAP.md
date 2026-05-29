@@ -91,16 +91,16 @@ Un usuario puede enviar una invitación, el otro la recibe, la acepta, y ambos q
 > Objetivo: músicos conectados pueden conversar por chat.
 
 ### Chat
-- [ ] Crear tabla `messages` en Supabase
-- [ ] Abrir chat al aceptar una invitación
-- [ ] Enviar y recibir mensajes en tiempo real (Supabase Realtime)
-- [ ] Indicador de mensaje leído / no leído
-- [ ] Scroll automático al último mensaje
+- [x] Crear tabla `messages` en Supabase
+- [x] Abrir chat al aceptar una invitación
+- [x] Enviar y recibir mensajes en tiempo real (Supabase Realtime)
+- [x] Indicador de mensaje leído / no leído
+- [x] Scroll automático al último mensaje
 
 ### Lista de conversaciones
-- [ ] Pantalla con todas las conversaciones activas
-- [ ] Preview del último mensaje en cada conversación
-- [ ] Badge con mensajes no leídos
+- [x] Pantalla con todas las conversaciones activas
+- [x] Preview del último mensaje en cada conversación
+- [x] Badge con mensajes no leídos
 - [ ] Push notification al recibir un mensaje nuevo
 
 ### Criterio de éxito de Fase 4
@@ -116,6 +116,8 @@ Dos músicos conectados pueden mandarse mensajes en tiempo real.
 - [ ] Manejo de errores con mensajes claros al usuario
 - [ ] Estados vacíos (sin músicos cerca, sin conexiones, sin mensajes)
 - [ ] Animaciones básicas de transición entre pantallas
+- [ ] Indicador "está escribiendo..." en el chat
+- [ ] Avatar del músico en el header del chat
 
 ### Moderación y seguridad
 - [ ] Opción de reportar un perfil
