@@ -110,30 +110,41 @@ created_at  timestamptz default now()
 ## Decisiones técnicas tomadas (no cambiar sin consenso)
 
 - **Expo Router** para navegación, no React Navigation standalone
-- **Supabase Realtime** para el chat, no WebSockets propios
-- **react-native-maps** para el mapa (Apple Maps en iOS) — compatible con Expo Go
-- **Supabase Auth** para autenticación — soporte email/password y OAuth (Google)
-- **geography** de PostGIS para ubicaciones, permite queries de distancia eficientes
+- **Supabase Realtime** para el chat y lista de conversaciones
+- **react-native-maps** para el mapa (Apple Maps en iOS) — Mapbox descartado por incompatibilidad con Expo Go
+- **Supabase Auth** para autenticación — email/password implementado, Google OAuth pendiente
+- **geography** de PostGIS para ubicaciones y queries de distancia
+- **expo-video** para reproducción de videos (no expo-av)
+- **expo-file-system/legacy** para uploads (la API nueva de SDK 54 no tiene readAsStringAsync)
+- **Ionicons** de @expo/vector-icons para íconos del bottom nav
+- Radio de búsqueda de músicos en `nearby_musicians` seteado en 999999999 (ilimitado) durante desarrollo
 
 ---
 
 ## Estado actual del proyecto
 
 ### ✅ Funcionando
-- (completar a medida que se avanza)
+- Auth completa (registro, login, logout, persistencia, protección de rutas)
+- Perfiles con foto y videos
+- Mapa con marcadores de avatar, tarjeta flotante y perfil ajeno
+- Conexiones (enviar/aceptar/rechazar)
+- Chat en tiempo real con badges de no leídos
+- Bottom nav con Ionicons y safe area
+- Skeletons, estados vacíos y manejo de errores
 
 ### ⚙️ En progreso
-- Setup inicial del proyecto
-- Autenticación con Supabase
+- Filtros del mapa (género, instrumento, distancia) — próxima tarea
 
-### ❌ Roto o pendiente
-- (completar a medida que aparecen problemas)
+### ❌ Pendiente importante
+- Row Level Security completo en Supabase
+- Push notifications (requiere EAS Build)
+- Login con Google
 
 ---
 
 ## Fase activa del Roadmap
 
-**FASE 1 — Fundación: Auth + Perfil básico**
+**FASE 2 — Filtros del mapa**
 Ver ROADMAP.md para detalle completo.
 
 ---

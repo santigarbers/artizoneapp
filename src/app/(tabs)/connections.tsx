@@ -14,6 +14,8 @@ import { router, useFocusEffect } from 'expo-router';
 import { useConnections } from '@/lib/hooks/useConnections';
 import { useConversations } from '@/lib/hooks/useConversations';
 import { useSession } from '@/lib/hooks/useSession';
+import { ConversationSkeletonList } from '@/components/ui/ConversationSkeleton';
+import { Skeleton } from '@/components/ui/Skeleton';
 
 function timeAgo(dateStr: string) {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -47,16 +49,20 @@ export default function ConnectionsScreen() {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator color="#fff" />
-      </View>
+      <ScrollView style={styles.container} contentContainerStyle={styles.inner}>
+        <Text style={styles.title}>Conexiones</Text>
+        <View style={styles.section}>
+          <Skeleton width={120} height={13} borderRadius={6} />
+          <ConversationSkeletonList count={4} />
+        </View>
+      </ScrollView>
     );
   }
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={styles.inner}
+      contentContainerStyle={[styles.inner, pending.length === 0 && conversations.length === 0 && styles.innerEmpty]}
       refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} tintColor="#fff" />}
     >
       <Text style={styles.title}>Conexiones</Text>
@@ -99,7 +105,7 @@ export default function ConnectionsScreen() {
             <Pressable
               key={c.connection_id}
               style={styles.convCard}
-              onPress={() => router.push({ pathname: `/chat/${c.connection_id}`, params: { username: c.other_username } })}
+              onPress={() => router.push({ pathname: `/chat/${c.connection_id}`, params: { username: c.other_username, avatar_url: c.other_avatar_url ?? '' } })}
             >
               <View style={styles.avatarWrapper}>
                 {c.other_avatar_url ? (
@@ -133,8 +139,12 @@ export default function ConnectionsScreen() {
 
       {pending.length === 0 && conversations.length === 0 && (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Todavía no tenés conexiones.</Text>
-          <Text style={styles.emptyHint}>Explorá el mapa para encontrar músicos cerca tuyo.</Text>
+          <Text style={styles.emptyIcon}>🎵</Text>
+          <Text style={styles.emptyText}>Todavía no tenés conexiones</Text>
+          <Text style={styles.emptyHint}>Descubrí músicos haciendo swipe y enviá una invitación para conectar.</Text>
+          <Pressable style={styles.emptyButton} onPress={() => router.replace('/(tabs)/discover')}>
+            <Text style={styles.emptyButtonText}>Ir a Descubrir</Text>
+          </Pressable>
         </View>
       )}
     </ScrollView>
@@ -145,6 +155,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   centered: { flex: 1, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center' },
   inner: { padding: 24, paddingTop: 60, gap: 20 },
+  innerEmpty: { flexGrow: 1 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#fff' },
   section: { gap: 10 },
   sectionTitle: { color: '#888', fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
@@ -214,7 +225,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rejectText: { color: '#888', fontSize: 14 },
-  empty: { flex: 1, alignItems: 'center', paddingTop: 60, gap: 8 },
-  emptyText: { color: '#fff', fontSize: 16, fontWeight: '500' },
-  emptyHint: { color: '#555', fontSize: 14, textAlign: 'center' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  emptyIcon: { fontSize: 48 },
+  emptyText: { color: '#fff', fontSize: 18, fontWeight: '600' },
+  emptyHint: { color: '#555', fontSize: 14, textAlign: 'center', paddingHorizontal: 24, lineHeight: 20 },
+  emptyButton: { marginTop: 8, backgroundColor: '#fff', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 28 },
+  emptyButtonText: { color: '#000', fontSize: 15, fontWeight: '600' },
 });

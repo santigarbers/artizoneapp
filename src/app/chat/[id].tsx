@@ -10,12 +10,14 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
+import { ChatSkeleton } from '@/components/ui/ChatSkeleton';
 import { useMessages } from '@/lib/hooks/useMessages';
 import { useSession } from '@/lib/hooks/useSession';
 
 export default function ChatScreen() {
-  const { id: connectionId, username } = useLocalSearchParams<{ id: string; username: string }>();
+  const { id: connectionId, username, avatar_url } = useLocalSearchParams<{ id: string; username: string; avatar_url: string }>();
   const { session } = useSession();
   const { messages, loading, sendMessage, markAsRead } = useMessages(connectionId, session?.user.id);
   const [text, setText] = useState('');
@@ -27,8 +29,13 @@ export default function ChatScreen() {
 
   async function handleSend() {
     if (!text.trim()) return;
+    const content = text;
     setText('');
-    await sendMessage(text);
+    const success = await sendMessage(content);
+    if (!success) {
+      setText(content);
+      Alert.alert('Error', 'No se pudo enviar el mensaje. Intentá de nuevo.');
+    }
   }
 
   if (loading) {
@@ -49,6 +56,13 @@ export default function ChatScreen() {
         <Pressable onPress={() => router.back()} hitSlop={12}>
           <Text style={styles.back}>←</Text>
         </Pressable>
+        {avatar_url ? (
+          <Image source={{ uri: avatar_url }} style={styles.headerAvatar} contentFit="cover" />
+        ) : (
+          <View style={styles.headerAvatarPlaceholder}>
+            <Text style={styles.headerAvatarInitial}>{username?.[0]?.toUpperCase() ?? '?'}</Text>
+          </View>
+        )}
         <Text style={styles.headerName}>@{username}</Text>
       </View>
 
@@ -111,6 +125,16 @@ const styles = StyleSheet.create({
     borderBottomColor: '#222',
   },
   back: { color: '#fff', fontSize: 22 },
+  headerAvatar: { width: 36, height: 36, borderRadius: 18 },
+  headerAvatarPlaceholder: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#333',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerAvatarInitial: { color: '#fff', fontSize: 15, fontWeight: 'bold' },
   headerName: { color: '#fff', fontSize: 17, fontWeight: '600' },
   messagesList: { padding: 16, gap: 8, flexGrow: 1 },
   bubble: {

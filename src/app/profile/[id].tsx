@@ -11,6 +11,7 @@ import {
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { VideoCarousel } from '@/components/features/VideoCarousel';
+import { ProfileSkeleton } from '@/components/ui/ProfileSkeleton';
 import { useConnections } from '@/lib/hooks/useConnections';
 import { useSession } from '@/lib/hooks/useSession';
 import { useVideos } from '@/lib/hooks/useVideos';
@@ -30,22 +31,28 @@ export default function MusicianProfileScreen() {
   const { session } = useSession();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const { videos } = useVideos(id);
   const { getConnectionWith, sendConnection, fetchConnections } = useConnections(session?.user.id);
 
   useEffect(() => {
-    supabase
+    loadProfile();
+    fetchConnections();
+  }, [id]);
+
+  async function loadProfile() {
+    setLoading(true);
+    setLoadError(null);
+    const { data, error } = await supabase
       .from('profiles')
       .select('id, username, bio, genres, instruments, avatar_url')
       .eq('id', id)
-      .single()
-      .then(({ data }) => {
-        setProfile(data);
-        setLoading(false);
-      });
-    fetchConnections();
-  }, [id]);
+      .single();
+    if (error) setLoadError('No se pudo cargar el perfil. Verificá tu conexión.');
+    else setProfile(data);
+    setLoading(false);
+  }
 
   async function handleConnect() {
     setConnecting(true);
@@ -89,17 +96,18 @@ export default function MusicianProfileScreen() {
   }
 
   if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator color="#fff" />
-      </View>
-    );
+    return <ProfileSkeleton />;
   }
 
-  if (!profile) {
+  if (loadError || !profile) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.error}>Perfil no encontrado</Text>
+        <Text style={styles.error}>{loadError ?? 'Perfil no encontrado'}</Text>
+        {loadError && (
+          <Pressable onPress={loadProfile} style={styles.retryButton}>
+            <Text style={styles.retryText}>Reintentar</Text>
+          </Pressable>
+        )}
       </View>
     );
   }
@@ -156,12 +164,13 @@ export default function MusicianProfileScreen() {
         </View>
       )}
 
-      {videos.length > 0 && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Videos</Text>
-          <VideoCarousel videos={videos} />
-        </View>
-      )}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Videos</Text>
+        {videos.length === 0
+          ? <Text style={styles.emptyVideos}>Este músico todavía no subió videos.</Text>
+          : <VideoCarousel videos={videos} />
+        }
+      </View>
     </ScrollView>
   );
 }
@@ -208,7 +217,9 @@ const styles = StyleSheet.create({
   },
   statusAccepted: { borderColor: '#2a4a2a', backgroundColor: '#1a2e1a' },
   statusText: { color: '#888', fontSize: 15 },
-  error: { color: '#ff4444', fontSize: 15 },
+  error: { color: '#ff4444', fontSize: 15, textAlign: 'center', paddingHorizontal: 24 },
+  retryButton: { marginTop: 16, borderWidth: 1, borderColor: '#333', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 24 },
+  retryText: { color: '#888', fontSize: 14 },
   section: { gap: 8 },
   sectionTitle: { color: '#888', fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
@@ -216,4 +227,5 @@ const styles = StyleSheet.create({
   tagGenre: { backgroundColor: '#1a1a2e', borderWidth: 1, borderColor: '#333' },
   tagInstrument: { backgroundColor: '#1a2e1a', borderWidth: 1, borderColor: '#2a4a2a' },
   tagText: { color: '#ccc', fontSize: 13 },
+  emptyVideos: { color: '#555', fontSize: 13 },
 });

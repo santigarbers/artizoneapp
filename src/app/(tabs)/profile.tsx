@@ -31,6 +31,7 @@ export default function ProfileScreen() {
   const [bio, setBio] = useState('');
   const [genres, setGenres] = useState('');
   const [instruments, setInstruments] = useState('');
+  const [lookingFor, setLookingFor] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const { videos, addVideo } = useVideos(session?.user.id);
@@ -41,6 +42,7 @@ export default function ProfileScreen() {
       setBio(profile.bio ?? '');
       setGenres(profile.genres?.join(', ') ?? '');
       setInstruments(profile.instruments?.join(', ') ?? '');
+      setLookingFor(profile.looking_for ?? '');
     }
   }, [profile]);
 
@@ -100,6 +102,7 @@ export default function ProfileScreen() {
       bio: bio.trim() || null,
       genres: genres ? genres.split(',').map(g => g.trim()).filter(Boolean) : null,
       instruments: instruments ? instruments.split(',').map(i => i.trim()).filter(Boolean) : null,
+      looking_for: lookingFor.trim() || null,
     });
     if (success) Alert.alert('Perfil guardado');
   }
@@ -234,6 +237,19 @@ export default function ProfileScreen() {
           <Text style={styles.hint}>Separalos con comas</Text>
         </View>
 
+        <View style={styles.field}>
+          <Text style={styles.label}>¿Qué estás buscando?</Text>
+          <TextInput
+            style={[styles.input, styles.multiline]}
+            value={lookingFor}
+            onChangeText={setLookingFor}
+            placeholder="Busco banda para tocar en vivo, jam sessions de jazz, grabar un EP..."
+            placeholderTextColor="#666"
+            multiline
+            numberOfLines={3}
+          />
+        </View>
+
         {error && <Text style={styles.error}>{error}</Text>}
 
         <Pressable style={styles.saveButton} onPress={handleSave} disabled={saving}>
@@ -252,7 +268,10 @@ export default function ProfileScreen() {
               : <Text style={styles.uploadVideoText}>+ Subir video</Text>
             }
           </Pressable>
-          <VideoCarousel videos={videos} />
+          {videos.length === 0
+            ? <Text style={styles.videoEmpty}>Todavía no subiste ningún video. ¡Mostrá lo que sabés hacer!</Text>
+            : <VideoCarousel videos={videos} />
+          }
         </View>
 
         <Pressable style={styles.logoutButton} onPress={handleLogout}>
@@ -317,6 +336,7 @@ const styles = StyleSheet.create({
   saveButtonText: { color: '#000', fontSize: 16, fontWeight: '600' },
   videoSection: { gap: 12 },
   videoTitle: { color: '#888', fontSize: 13, fontWeight: '600', textTransform: 'uppercase' },
+  videoEmpty: { color: '#555', fontSize: 13, lineHeight: 18 },
   uploadVideoButton: {
     borderWidth: 1,
     borderColor: '#333',

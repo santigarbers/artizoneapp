@@ -48,12 +48,13 @@ export function useMessages(connectionId: string | undefined, userId: string | u
   }, [connectionId]);
 
   async function sendMessage(content: string) {
-    if (!connectionId || !userId || !content.trim()) return;
-    await supabase.from('messages').insert({
+    if (!connectionId || !userId || !content.trim()) return false;
+    const { error } = await supabase.from('messages').insert({
       connection_id: connectionId,
       sender_id: userId,
       content: content.trim(),
     });
+    return !error;
   }
 
   async function markAsRead() {

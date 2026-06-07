@@ -23,9 +23,18 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="map"
+        name="discover"
         options={{
-          title: 'Mapa',
+          title: 'Descubrir',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'musical-notes' : 'musical-notes-outline'} size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="salas"
+        options={{
+          title: 'Salas',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'map' : 'map-outline'} size={24} color={color} />
           ),
@@ -49,6 +58,7 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="map" options={{ href: null }} />
     </Tabs>
   );
 }

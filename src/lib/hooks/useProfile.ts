@@ -8,6 +8,7 @@ export type Profile = {
   genres: string[] | null;
   instruments: string[] | null;
   avatar_url: string | null;
+  looking_for: string | null;
 };
 
 export function useProfile(userId: string | undefined) {
