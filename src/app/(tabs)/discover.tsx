@@ -80,38 +80,19 @@ export default function DiscoverScreen() {
 
       <View style={styles.cardArea}>
         {nextMusician && (
-          <View style={styles.cardBehind}>
+          <View style={styles.cardBehind} pointerEvents="none">
             <SwipeCard musician={nextMusician} onSwipe={() => {}} isTop={false} />
           </View>
         )}
         {topMusician && (
-          <View style={styles.cardFront}>
-            <SwipeCard
-              key={topMusician.id}
-              musician={topMusician}
-              onSwipe={(dir) => handleSwipe(topMusician.id, dir)}
-              isTop
-            />
-          </View>
+          <SwipeCard
+            key={topMusician.id}
+            musician={topMusician}
+            onSwipe={(dir) => handleSwipe(topMusician.id, dir)}
+            isTop
+          />
         )}
       </View>
-
-      {topMusician && (
-        <View style={styles.buttons}>
-          <Pressable
-            style={[styles.actionButton, styles.nopeButton]}
-            onPress={() => handleSwipe(topMusician.id, 'left')}
-          >
-            <Text style={styles.nopeIcon}>✕</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.actionButton, styles.likeButton]}
-            onPress={() => handleSwipe(topMusician.id, 'right')}
-          >
-            <Text style={styles.likeIcon}>♥</Text>
-          </Pressable>
-        </View>
-      )}
 
       <FilterSheet
         visible={sheetOpen}
@@ -128,6 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
     paddingHorizontal: 16,
+    paddingBottom: 16,
     gap: 16,
   },
   centered: {
@@ -171,36 +153,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 16,
   },
   cardBehind: {
     position: 'absolute',
-    top: 12,
+    top: 0,
     transform: [{ scale: 0.96 }],
     opacity: 0.6,
+    zIndex: 0,
   },
-  cardFront: { position: 'absolute' },
-  buttons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 40,
-    paddingBottom: 16,
-  },
-  actionButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  nopeButton: { backgroundColor: '#1a1a1a', borderWidth: 2, borderColor: '#f87171' },
-  likeButton: { backgroundColor: '#1a1a1a', borderWidth: 2, borderColor: '#4ade80' },
-  nopeIcon: { color: '#f87171', fontSize: 24, fontWeight: 'bold' },
-  likeIcon: { color: '#4ade80', fontSize: 24 },
   emptyIcon: { fontSize: 52 },
   emptyTitle: { color: '#fff', fontSize: 20, fontWeight: '600' },
   emptyHint: { color: '#555', fontSize: 14, textAlign: 'center', lineHeight: 20 },
