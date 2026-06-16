@@ -1,6 +1,27 @@
+import { StyleSheet, View } from 'react-native';
+import { LiquidGlassView, isLiquidGlassSupported } from '@callstack/liquid-glass';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+function TabBarBackground() {
+  if (isLiquidGlassSupported) {
+    return (
+      <LiquidGlassView
+        effect="regular"
+        style={StyleSheet.absoluteFill}
+      />
+    );
+  }
+  return (
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        { backgroundColor: '#111', borderTopWidth: 1, borderTopColor: '#222' },
+      ]}
+    />
+  );
+}
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -9,15 +30,18 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarBackground: () => <TabBarBackground />,
         tabBarStyle: {
-          backgroundColor: '#111',
-          borderTopColor: '#222',
+          position: 'absolute',
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          elevation: 0,
           height: 60 + insets.bottom,
           paddingBottom: insets.bottom + 8,
           paddingTop: 8,
         },
         tabBarActiveTintColor: '#fff',
-        tabBarInactiveTintColor: '#555',
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.4)',
         tabBarShowLabel: true,
         tabBarLabelStyle: { fontSize: 11, marginTop: 2 },
       }}
@@ -58,7 +82,8 @@ export default function TabsLayout() {
           ),
         }}
       />
-      <Tabs.Screen name="map" options={{ href: null }} />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({});

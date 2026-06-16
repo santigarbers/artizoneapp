@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DistanceSlider } from './DistanceSlider';
-import type { SwipeFilters } from '@/lib/hooks/useSwipeMusicians';
+import type { DiscoverFilters } from '@/lib/hooks/useNearbyMusicians';
 
 const GENRES = ['Blues', 'Rock', 'Jazz', 'Cumbia', 'Tango', 'Folklore', 'Pop', 'Metal', 'Reggae', 'Funk', 'Hip Hop', 'Clásica', 'Electrónica', 'Soul', 'R&B'];
 const INSTRUMENTS = ['Guitarra', 'Bajo', 'Batería', 'Teclado', 'Voz', 'Violín', 'Saxofón', 'Trompeta', 'Piano', 'Cajón', 'Percusión', 'Contrabajo'];
@@ -11,14 +11,14 @@ const SHEET_HEIGHT = 500;
 
 type Props = {
   visible: boolean;
-  filters: SwipeFilters;
-  onApply: (filters: SwipeFilters) => void;
+  filters: DiscoverFilters;
+  onApply: (filters: DiscoverFilters) => void;
   onClose: () => void;
 };
 
 export function FilterSheet({ visible, filters, onApply, onClose }: Props) {
   const insets = useSafeAreaInsets();
-  const [draft, setDraft] = useState<SwipeFilters>(filters);
+  const [draft, setDraft] = useState<DiscoverFilters>(filters);
 
   const backdropOpacity = useRef(new Animated.Value(0)).current;
   const sheetTranslateY = useRef(new Animated.Value(SHEET_HEIGHT)).current;

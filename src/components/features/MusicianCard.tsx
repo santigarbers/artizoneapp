@@ -3,13 +3,17 @@ import { useEffect, useRef } from 'react';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { Musician } from '@/lib/hooks/useNearbyMusicians';
+import type { ConnectionWithProfile } from '@/lib/hooks/useConnections';
+import { ConnectButton } from './ConnectButton';
 
 type Props = {
   musician: Musician | null;
   onClose: () => void;
+  connection?: ConnectionWithProfile | null;
+  onConnect?: (musicianId: string) => Promise<void> | void;
 };
 
-export function MusicianCard({ musician, onClose }: Props) {
+export function MusicianCard({ musician, onClose, connection = null, onConnect }: Props) {
   const translateY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
@@ -86,12 +90,25 @@ export function MusicianCard({ musician, onClose }: Props) {
         </View>
       )}
 
-      <Pressable
-        style={styles.profileButton}
-        onPress={() => router.push(`/profile/${musician.id}`)}
-      >
-        <Text style={styles.profileButtonText}>Ver perfil completo</Text>
-      </Pressable>
+      <View style={styles.actions}>
+        <Pressable
+          style={[styles.profileButton, styles.actionFlex]}
+          onPress={() =>
+            router.push({
+              pathname: '/profile/[id]',
+              params: { id: musician.id, distanceMeters: musician.distance_meters.toString() },
+            })
+          }
+        >
+          <Text style={styles.profileButtonText}>Ver perfil</Text>
+        </Pressable>
+        {onConnect && (
+          <ConnectButton
+            connection={connection}
+            onConnect={() => onConnect(musician.id)}
+          />
+        )}
+      </View>
     </Animated.View>
   );
 }
@@ -202,15 +219,23 @@ const styles = StyleSheet.create({
     color: '#ccc',
     fontSize: 12,
   },
+  actions: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 4,
+  },
+  actionFlex: { flex: 1 },
   profileButton: {
-    backgroundColor: '#fff',
+    backgroundColor: '#222',
+    borderWidth: 1,
+    borderColor: '#333',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 4,
+    justifyContent: 'center',
   },
   profileButtonText: {
-    color: '#000',
+    color: '#fff',
     fontSize: 15,
     fontWeight: '600',
   },
