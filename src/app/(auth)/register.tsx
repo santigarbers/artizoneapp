@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -137,7 +137,11 @@ export default function RegisterScreen() {
   return (
     <View style={styles.root}>
       <ImageBackground source={BG} style={StyleSheet.absoluteFill} resizeMode="cover" />
-      <View style={[StyleSheet.absoluteFill, styles.bgOverlay]} />
+      <LinearGradient
+        colors={['rgba(0,0,0,0.72)', 'rgba(0,0,0,0.72)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFill}
+      />
 
       <KeyboardAvoidingView
         style={styles.kav}
@@ -148,9 +152,9 @@ export default function RegisterScreen() {
           <Text style={styles.brandSub}>Tu comunidad musical</Text>
         </View>
 
-        <View style={styles.sheetContainer}>
-          <View style={[StyleSheet.absoluteFill, styles.sheetDark]} />
-          <BlurView intensity={80} tint="dark" style={[StyleSheet.absoluteFill, styles.sheetBlur]} />
+        <View style={styles.sheet}>
+          <ImageBackground source={BG} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={50} />
+          <View style={[StyleSheet.absoluteFill, styles.sheetTint]} />
           {formContent}
         </View>
       </KeyboardAvoidingView>
@@ -160,7 +164,6 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
-  bgOverlay: { backgroundColor: 'rgba(0,0,0,0.3)' },
 
   kav: { flex: 1, justifyContent: 'flex-end' },
 
@@ -187,19 +190,14 @@ const styles = StyleSheet.create({
     textShadowRadius: 6,
   },
 
-  sheetContainer: {
+  sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
   },
-  sheetDark: {
-    backgroundColor: 'rgba(0,0,0,0.88)',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-  },
-  sheetBlur: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+  sheetTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
   },
 
   form: {

@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -118,8 +118,12 @@ export default function LoginScreen() {
   return (
     <View style={styles.root}>
       <ImageBackground source={BG} style={StyleSheet.absoluteFill} resizeMode="cover" />
-      {/* Scrim general sobre la foto */}
-      <View style={[StyleSheet.absoluteFill, styles.bgOverlay]} />
+      {/* Gradiente: oscuro arriba donde está el branding, transparente abajo donde está el BlurView */}
+      <LinearGradient
+        colors={['rgba(0,0,0,0.72)', 'rgba(0,0,0,0.72)', 'rgba(0,0,0,0)']}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFill}
+      />
 
       <KeyboardAvoidingView
         style={styles.kav}
@@ -131,13 +135,11 @@ export default function LoginScreen() {
           <Text style={styles.brandSub}>Tu comunidad musical</Text>
         </View>
 
-        {/* Sheet: fondo negro sólido oscuro + BlurView encima para efecto glass */}
-        <View style={styles.sheetContainer}>
-          {/* Fondo negro opaco — garantiza que nunca se vea naranja */}
-          <View style={[StyleSheet.absoluteFill, styles.sheetDark]} />
-          {/* BlurView encima del fondo oscuro — blurrea el negro + la imagen de fondo */}
-          <BlurView intensity={80} tint="dark" style={[StyleSheet.absoluteFill, styles.sheetBlur]} />
-          {/* Contenido encima de todo */}
+        <View style={styles.sheet}>
+          {/* La misma foto borroneada con CIFilter — funciona en cualquier iOS */}
+          <ImageBackground source={BG} style={StyleSheet.absoluteFill} resizeMode="cover" blurRadius={50} />
+          {/* Tint oscuro encima del blur */}
+          <View style={[StyleSheet.absoluteFill, styles.sheetTint]} />
           {formContent}
         </View>
       </KeyboardAvoidingView>
@@ -147,7 +149,6 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: '#000' },
-  bgOverlay: { backgroundColor: 'rgba(0,0,0,0.65)' },
 
   kav: { flex: 1, justifyContent: 'flex-end' },
 
@@ -174,21 +175,14 @@ const styles = StyleSheet.create({
     textShadowRadius: 6,
   },
 
-  sheetContainer: {
+  sheet: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     overflow: 'hidden',
   },
-  // Fondo negro sólido — hace que el sheet siempre sea oscuro sin importar BlurView
-  sheetDark: {
-    backgroundColor: 'rgba(0,0,0,0.10)',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-  },
-  // BlurView sobre el fondo negro — agrega la textura de vidrio esmerilado
-  sheetBlur: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+  sheetTint: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.62)',
   },
 
   form: {
