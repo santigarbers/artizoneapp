@@ -2,11 +2,17 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, router, useSegments } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useSession } from '@/lib/hooks/useSession';
 
 export default function RootLayout() {
   const { session, loading } = useSession();
   const segments = useSegments();
+
+  useEffect(() => {
+    WebBrowser.warmUpAsync();
+    return () => { WebBrowser.coolDownAsync(); };
+  }, []);
 
   useEffect(() => {
     if (loading) return;

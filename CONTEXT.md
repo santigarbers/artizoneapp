@@ -1,10 +1,16 @@
 # Artizone — Contexto del Proyecto
 
 ## Qué es Artizone
-App móvil para descubrir músicos cercanos con experiencia de swipe tipo Tinder.
-Los usuarios ven perfiles con gustos musicales y videos, hacen swipe para conectar,
-y una vez aceptadas las invitaciones se abre un chat privado entre ambos.
+App móvil para descubrir músicos cercanos. El usuario explora **todos** los músicos
+cercanos en una lista (ordenada por distancia) y puede alternar a una vista de mapa
+si lo prefiere. Ve perfiles con gustos musicales y videos, envía invitaciones de
+conexión, y una vez aceptadas se abre un chat privado entre ambos.
 También tiene un mapa de salas de ensayo, estudios y espacios musicales en Buenos Aires.
+
+> ⚠️ Cambio de dirección (2026-06-15): se descartó el descubrimiento tipo swipe/Tinder
+> (se sentía raro y mostraba de a uno). Ahora Descubrir = lista de músicos cercanos +
+> toggle a mapa. El código de swipe (`SwipeCard`, `useSwipeMusicians`) sigue en el repo
+> pero fuera del flujo principal.
 
 ---
 
@@ -28,7 +34,7 @@ También tiene un mapa de salas de ensayo, estudios y espacios musicales en Buen
 
 | Tab | Ruta | Contenido |
 |-----|------|-----------|
-| 1 | /discover | Swipe de músicos estilo Tinder |
+| 1 | /discover | Lista + mapa de músicos cercanos (toggle) |
 | 2 | /salas | Mapa de venues musicales |
 | 3 | /connections | Invitaciones recibidas/enviadas |
 | 4 | /chats (o similar) | Conversaciones activas |
@@ -148,23 +154,27 @@ RLS habilitado en todas las tablas. Función PostGIS `nearby_musicians` para que
 - **Ionicons** de @expo/vector-icons para íconos del bottom nav
 - **geography** de PostGIS para ubicaciones y queries de distancia
 - Radio de búsqueda en `nearby_musicians` seteado en 999999999 (ilimitado) durante desarrollo
-- SwipeCard: foto full-bleed, degradado con LinearGradient, botones ✕/♥ dentro de la card
+- Descubrir: lista de músicos cercanos (`useNearbyMusicians`) + toggle a mapa (en migración desde swipe)
 - FilterSheet: draft state (no aplica hasta CTA), slider logarítmico 2–800km sin snap points
 - Venues: coordenadas lat/lng en columnas separadas (no geography), filtro por tipo en cliente
+- SwipeCard / useSwipeMusicians: descartados del flujo principal, archivos conservados en el repo
 
 ---
 
 ## Estado actual del proyecto (post sesión 2026-06-08)
 
-### ✅ Fase 2 — Descubrir (completa)
-- Swipe estilo Tinder con GestureDetector + Reanimated
-- Foto full-bleed con degradado LinearGradient
-- Botones ✕ y ♥ dentro de la card
-- Overlays LIKE/PASO animados
-- Scroll vertical dentro de la card (bio completa) sin interferir con swipe
-- FilterSheet: géneros, instrumentos, distancia (slider logarítmico)
-- Registro de swipes en Supabase, lógica para no repetir músicos vistos
-- Campo `looking_for` en perfil
+### 🔄 Fase 2 — Descubrir (en migración: swipe → lista + mapa)
+**Nuevo rumbo (2026-06-15):** Descubrir pasa a ser lista de músicos cercanos + toggle a mapa.
+- [ ] Reescribir tab Descubrir como lista vertical (`useNearbyMusicians`), orden por distancia
+- [ ] Botón "Conectar" en tarjeta/perfil (reemplaza el swipe-derecha)
+- [ ] Integrar el mapa (hoy en `map.tsx` oculto) con toggle Lista ↔ Mapa
+- [ ] Conectar FilterSheet a `useNearbyMusicians`
+- [x] FilterSheet: géneros, instrumentos, distancia (slider logarítmico) — ya existe
+- [x] Mapa de músicos con marcadores (`map.tsx`, `MusicianMarker`, `MusicianCard`) — hecho pero oculto
+- [x] Campo `looking_for` en perfil
+
+**Legacy (fuera del flujo, archivos conservados):** swipe estilo Tinder con GestureDetector +
+Reanimated, foto full-bleed con LinearGradient, botones ✕/♥, overlays LIKE/PASO, registro en tabla `swipes`.
 
 ### ✅ Fase 3 — Salas (completa)
 - Mapa con 17 venues en Buenos Aires (Belgrano, Palermo, San Telmo, Almagro, etc.)

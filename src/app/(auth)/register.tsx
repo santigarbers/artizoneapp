@@ -4,6 +4,7 @@ import {
   Alert,
   ImageBackground,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   Pressable,
   ScrollView,
@@ -26,8 +27,10 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const { signUp, loading, error } = useAuth();
+  const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const { signUp, signInWithGoogle, loading, error } = useAuth();
   const insets = useSafeAreaInsets();
+
 
   async function handleRegister() {
     if (!email || !password || !confirmPassword) {
@@ -60,7 +63,7 @@ export default function RegisterScreen() {
 
       <View style={styles.inputWrap}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, focusedInput === 'email' && styles.inputFocused]}
           placeholder="Email"
           placeholderTextColor="#666"
           value={email}
@@ -68,18 +71,22 @@ export default function RegisterScreen() {
           autoCapitalize="none"
           keyboardType="email-address"
           returnKeyType="next"
+          onFocus={() => { LayoutAnimation.configureNext({ duration: 300, update: { type: LayoutAnimation.Types.keyboard } }); setFocusedInput('email'); }}
+          onBlur={() => setFocusedInput(null)}
         />
       </View>
 
       <View style={styles.inputWrap}>
         <TextInput
-          style={[styles.input, styles.inputWithIcon]}
+          style={[styles.input, styles.inputWithIcon, focusedInput === 'password' && styles.inputFocused]}
           placeholder="Contraseña"
           placeholderTextColor="#666"
           value={password}
           onChangeText={setPassword}
           secureTextEntry={!showPassword}
           returnKeyType="next"
+          onFocus={() => { LayoutAnimation.configureNext({ duration: 300, update: { type: LayoutAnimation.Types.keyboard } }); setFocusedInput('password'); }}
+          onBlur={() => setFocusedInput(null)}
         />
         <Pressable style={styles.eyeBtn} onPress={() => setShowPassword(v => !v)} hitSlop={10}>
           <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="#666" />
@@ -88,7 +95,7 @@ export default function RegisterScreen() {
 
       <View style={styles.inputWrap}>
         <TextInput
-          style={[styles.input, styles.inputWithIcon]}
+          style={[styles.input, styles.inputWithIcon, focusedInput === 'confirm' && styles.inputFocused]}
           placeholder="Confirmar contraseña"
           placeholderTextColor="#666"
           value={confirmPassword}
@@ -96,6 +103,8 @@ export default function RegisterScreen() {
           secureTextEntry={!showConfirm}
           returnKeyType="done"
           onSubmitEditing={handleRegister}
+          onFocus={() => { LayoutAnimation.configureNext({ duration: 300, update: { type: LayoutAnimation.Types.keyboard } }); setFocusedInput('confirm'); }}
+          onBlur={() => setFocusedInput(null)}
         />
         <Pressable style={styles.eyeBtn} onPress={() => setShowConfirm(v => !v)} hitSlop={10}>
           <Ionicons name={showConfirm ? 'eye-off-outline' : 'eye-outline'} size={20} color="#666" />
@@ -117,7 +126,7 @@ export default function RegisterScreen() {
       </View>
 
       <View style={styles.socialRow}>
-        <Pressable style={styles.socialBtn} onPress={() => Alert.alert('Próximamente', 'Registro con Google.')}>
+        <Pressable style={styles.socialBtn} onPress={signInWithGoogle} disabled={loading}>
           <Text style={styles.googleIcon}>G</Text>
           <Text style={styles.socialText}>Google</Text>
         </Pressable>
@@ -220,6 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   inputWithIcon: { paddingRight: 52 },
+  inputFocused: { borderColor: '#7c3aed' },
   eyeBtn: { position: 'absolute', right: 18, height: 54, justifyContent: 'center' },
 
   errorText: { color: '#f87171', fontSize: 13, textAlign: 'center', marginTop: -4 },

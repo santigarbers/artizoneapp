@@ -35,35 +35,45 @@ Un usuario puede registrarse, completar su perfil con foto y volver a entrar sin
 
 ---
 
-## FASE 2 — Descubrir: Swipe de músicos ← FASE ACTIVA
-> Objetivo: el usuario puede explorar músicos con una experiencia tipo swipe y enviar invitaciones de conexión de forma natural.
+## FASE 2 — Descubrir: Lista + Mapa de músicos cercanos ← FASE ACTIVA
+> Objetivo: el usuario puede explorar **todos** los músicos cercanos en una lista, alternar a un mapa si lo prefiere, y enviar invitaciones de conexión.
+>
+> ⚠️ Cambio de dirección (2026-06-15): se descarta el descubrimiento tipo swipe/Tinder (se sentía raro y solo mostraba de a uno). El nuevo modelo es **explorar todos a la vez**: lista por defecto + vista de mapa opcional con un toggle.
 
 ### Modelo de datos
 - [x] Agregar campo `looking_for` en tabla `profiles` (texto libre: "busco banda", "jam sessions", "grabar", etc.)
 - [ ] Agregar campo `media` en tabla `profiles` o tabla separada `profile_media` (fotos + videos)
-- [x] Crear tabla `swipes` para registrar decisiones (user_id, target_id, direction: 'left' | 'right')
-- [x] Evitar mostrar músicos ya vistos (query excluye swipes previos)
-
-### Experiencia de swipe
-- [x] Stack de tarjetas con músicos (de a uno, apiladas visualmente)
-- [x] Cada tarjeta muestra: foto principal, nombre, géneros, instrumentos, "qué está buscando"
-- [ ] Scroll dentro de la tarjeta para ver más: bio, fotos adicionales, videos
-- [x] Swipe a la derecha → enviar invitación de conexión (estado `pending`)
-- [x] Swipe a la izquierda → descartar (no vuelve a aparecer)
-- [x] Botones de acción visibles debajo de la tarjeta (✕ y ♥) además del swipe
-- [x] Animación de swipe fluida con feedback visual (overlay verde/rojo según dirección)
-- [x] Pantalla de "no hay más músicos cerca" cuando se acaban las tarjetas
+- [x] Función PostGIS `nearby_musicians` para traer músicos por distancia (ya en uso por `useNearbyMusicians`)
 - [x] Lógica para no mostrar el propio perfil
 
-### Filtros del descubrimiento
-- [ ] Filtrar por género musical
-- [ ] Filtrar por instrumento
-- [ ] Filtrar por distancia (sin mostrar ubicación exacta — solo radio aproximado)
+### Vista de lista (default)
+- [ ] Reescribir el tab "Descubrir" como lista vertical de todos los músicos cercanos (`useNearbyMusicians`)
+- [ ] Cada fila/tarjeta muestra: avatar, nombre, distancia aproximada, géneros e instrumentos
+- [ ] Ordenar por distancia (más cercanos primero)
+- [ ] Tap en un músico abre su perfil completo (`/profile/[id]`) con bio, fotos y videos
+- [ ] Botón "Conectar" (enviar invitación, estado `pending`) en la tarjeta y/o en el perfil
+- [ ] Estado de carga (skeletons) mientras se traen los músicos
+- [ ] Estado vacío ("no hay músicos cerca" / "sin resultados con estos filtros")
+- [ ] Pull-to-refresh para actualizar la lista
+
+### Vista de mapa (toggle)
+- [x] Mapa con marcadores de músicos cercanos (`map.tsx`, hoy oculto — `MusicianMarker` + `MusicianCard`)
+- [ ] Toggle Lista ↔ Mapa dentro del tab "Descubrir" (integrar el mapa actual, dejar de usar tab oculto)
+- [ ] Tap en marcador abre la tarjeta del músico con botón "Conectar" y "Ver perfil"
+- [ ] Botón de re-centrado en la ubicación propia
+
+### Filtros del descubrimiento (compartidos entre lista y mapa)
+- [x] FilterSheet con géneros, instrumentos y distancia (slider logarítmico) — ya existe
+- [ ] Conectar los filtros a `useNearbyMusicians` (hoy filtran el flujo de swipe)
 - [ ] Botón para limpiar filtros activos
 - [ ] Indicador visual de filtros activos
 
+### Limpieza
+- [ ] Quitar `SwipeCard` / `useSwipeMusicians` del flujo de Descubrir (conservar archivos en el repo)
+- [ ] Evaluar si la tabla `swipes` sigue teniendo sentido o se reemplaza por solo "descartar"/ocultar
+
 ### Criterio de éxito de Fase 2
-✅ El usuario puede hacer swipe sobre músicos, ver su perfil completo con multimedia, y al hacer swipe derecho se genera una invitación de conexión.
+✅ El usuario abre "Descubrir", ve la lista de músicos cercanos ordenada por distancia, puede pasar a vista de mapa, abrir el perfil completo de cualquiera y enviar una invitación de conexión.
 
 ---
 
@@ -170,7 +180,7 @@ La app puede ser instalada por alguien que no la conoce, entiende cómo funciona
 
 | Tab | Nombre | Contenido |
 |-----|--------|-----------|
-| 1 | Descubrir | Swipe de músicos |
+| 1 | Descubrir | Lista + mapa de músicos cercanos (toggle) |
 | 2 | Salas | Mapa de venues musicales |
 | 3 | Conexiones | Invitaciones y contactos |
 | 4 | Chats | Conversaciones activas |
@@ -179,12 +189,13 @@ La app puede ser instalada por alguien que no la conoce, entiende cómo funciona
 ---
 
 ## Fase activa ahora
-**FASE 2 — Swipe de músicos**
+**FASE 2 — Descubrir: Lista + Mapa de músicos cercanos**
 
 ## Resumen de pendientes MVP
 | Prioridad | Tarea |
 |-----------|-------|
-| 🔴 Alta | Experiencia de swipe (tab Descubrir) |
+| 🔴 Alta | Descubrir como lista de músicos cercanos + toggle a mapa (reescribir tab) |
+| 🔴 Alta | Conectar filtros (FilterSheet) a la lista/mapa de músicos |
 | 🔴 Alta | Mapa de venues (tab Salas) |
 | 🔴 Alta | Push notifications (invitaciones + mensajes) |
 | 🔴 Alta | Row Level Security en Supabase |
