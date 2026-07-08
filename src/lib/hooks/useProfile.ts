@@ -4,11 +4,19 @@ import { supabase } from '../supabase';
 export type Profile = {
   id: string;
   username: string;
+  display_name: string | null;
   bio: string | null;
   genres: string[] | null;
   instruments: string[] | null;
   avatar_url: string | null;
   looking_for: string | null;
+  city: string | null;
+  neighborhood: string | null;
+  spotify_url: string | null;
+  youtube_url: string | null;
+  soundcloud_url: string | null;
+  bandcamp_url: string | null;
+  instagram_url: string | null;
 };
 
 export function useProfile(userId: string | undefined) {

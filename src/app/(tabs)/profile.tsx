@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { VideoCarousel } from '@/components/features/VideoCarousel';
 import { INSTRUMENT_CONFIG } from '@/constants/instruments';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useMyBandInvitations, useMyBands } from '@/lib/hooks/useBands';
 import { useProfile } from '@/lib/hooks/useProfile';
 import { useSession } from '@/lib/hooks/useSession';
 import { useVideos } from '@/lib/hooks/useVideos';
@@ -36,14 +37,23 @@ export default function ProfileScreen() {
   const { signOut } = useAuth();
   const { profile, loading, saving, error, updateProfile } = useProfile(session?.user.id);
   const { videos, addVideo } = useVideos(session?.user.id);
+  const { bands: myBands } = useMyBands(session?.user.id);
+  const { invitations: bandInvitations, responding: respondingInvitation, accept: acceptBandInvitation, reject: rejectBandInvitation } = useMyBandInvitations(session?.user.id);
 
   const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [selectedInstruments, setSelectedInstruments] = useState<string[]>([]);
   const [genres, setGenres] = useState('');
   const [lookingFor, setLookingFor] = useState('');
   const [city, setCity] = useState('');
+  const [neighborhood, setNeighborhood] = useState('');
   const [availability, setAvailability] = useState<string[]>([]);
+  const [spotifyUrl, setSpotifyUrl] = useState('');
+  const [youtubeUrl, setYoutubeUrl] = useState('');
+  const [soundcloudUrl, setSoundcloudUrl] = useState('');
+  const [bandcampUrl, setBandcampUrl] = useState('');
+  const [instagramUrl, setInstagramUrl] = useState('');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingVideo, setUploadingVideo] = useState(false);
   const [locating, setLocating] = useState(false);
@@ -51,10 +61,18 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (profile) {
       setUsername(profile.username ?? '');
+      setDisplayName(profile.display_name ?? '');
       setBio(profile.bio ?? '');
       setSelectedInstruments(profile.instruments ?? []);
       setGenres(profile.genres?.join(', ') ?? '');
       setLookingFor(profile.looking_for ?? '');
+      setCity(profile.city ?? '');
+      setNeighborhood(profile.neighborhood ?? '');
+      setSpotifyUrl(profile.spotify_url ?? '');
+      setYoutubeUrl(profile.youtube_url ?? '');
+      setSoundcloudUrl(profile.soundcloud_url ?? '');
+      setBandcampUrl(profile.bandcamp_url ?? '');
+      setInstagramUrl(profile.instagram_url ?? '');
     }
   }, [profile]);
 
@@ -163,12 +181,30 @@ export default function ProfileScreen() {
     }
     const success = await updateProfile({
       username: username.trim(),
+      display_name: displayName.trim() || null,
       bio: bio.trim() || null,
       genres: genres ? genres.split(',').map(g => g.trim()).filter(Boolean) : null,
       instruments: selectedInstruments.length > 0 ? selectedInstruments : null,
       looking_for: lookingFor.trim() || null,
+      city: city.trim() || null,
+      neighborhood: neighborhood.trim() || null,
+      spotify_url: spotifyUrl.trim() || null,
+      youtube_url: youtubeUrl.trim() || null,
+      soundcloud_url: soundcloudUrl.trim() || null,
+      bandcamp_url: bandcampUrl.trim() || null,
+      instagram_url: instagramUrl.trim() || null,
     });
     if (success) Alert.alert('Perfil guardado ✓');
+  }
+
+  async function handleAcceptInvitation(invitationId: string) {
+    const { error } = await acceptBandInvitation(invitationId);
+    if (error) Alert.alert('Error', error);
+  }
+
+  async function handleRejectInvitation(invitationId: string) {
+    const { error } = await rejectBandInvitation(invitationId);
+    if (error) Alert.alert('Error', error);
   }
 
   async function handleLogout() {
@@ -231,6 +267,96 @@ export default function ProfileScreen() {
           </Pressable>
         </View>
 
+        {/* ── Invitaciones a bandas ── */}
+        {bandInvitations.length > 0 && (
+          <>
+            <Text style={styles.sectionHeader}>✉️  Invitaciones a bandas</Text>
+            {bandInvitations.map(inv => (
+              <View key={inv.id} style={styles.card}>
+                <View style={styles.invitationRow}>
+                  {inv.band?.avatar_url ? (
+                    <Image source={{ uri: inv.band.avatar_url }} style={styles.invitationAvatar} contentFit="cover" />
+                  ) : (
+                    <View style={styles.invitationAvatarPlaceholder}>
+                      <Text style={styles.invitationInitial}>{inv.band?.name?.[0]?.toUpperCase() ?? '?'}</Text>
+                    </View>
+                  )}
+                  <View style={styles.invitationInfo}>
+                    <Text style={styles.invitationBandName}>{inv.band?.name}</Text>
+                    <Text style={styles.invitationMeta}>
+                      Invitado por {inv.inviter?.display_name ?? `@${inv.inviter?.username}`}
+                      {inv.proposed_role ? ` · ${inv.proposed_role}` : ''}
+                    </Text>
+                    {inv.message && <Text style={styles.invitationMessage}>&ldquo;{inv.message}&rdquo;</Text>}
+                  </View>
+                </View>
+                <View style={styles.invitationActions}>
+                  <Pressable
+                    style={styles.invitationRejectBtn}
+                    onPress={() => handleRejectInvitation(inv.id)}
+                    disabled={respondingInvitation}
+                  >
+                    <Text style={styles.invitationRejectText}>Rechazar</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.invitationAcceptBtn}
+                    onPress={() => handleAcceptInvitation(inv.id)}
+                    disabled={respondingInvitation}
+                  >
+                    <Text style={styles.invitationAcceptText}>Aceptar</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+
+        {/* ── Sos parte de ── */}
+        <Text style={styles.sectionHeader}>🎸  Sos parte de</Text>
+
+        {myBands.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.bandsScroll}
+          >
+            {myBands.map(band => (
+              <Pressable
+                key={band.id}
+                style={styles.bandCard}
+                onPress={() => router.push({ pathname: '/band/[id]', params: { id: band.id } })}
+              >
+                {band.avatar_url ? (
+                  <Image source={{ uri: band.avatar_url }} style={styles.bandAvatar} contentFit="cover" />
+                ) : (
+                  <View style={styles.bandAvatarPlaceholder}>
+                    <Text style={styles.bandAvatarInitial}>{band.name[0]?.toUpperCase() ?? '?'}</Text>
+                  </View>
+                )}
+                <Text style={styles.bandName} numberOfLines={1}>{band.name}</Text>
+                <Text style={styles.bandRole}>{band.my_role === 'leader' ? 'Líder' : 'Integrante'}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        )}
+
+        <Pressable style={styles.createBandBtn} onPress={() => router.push('/band/new')}>
+          <Text style={styles.createBandBtnText}>+ Crear banda</Text>
+        </Pressable>
+
+        {/* ── Nombre para mostrar ── */}
+        <View style={styles.card}>
+          <Text style={styles.fieldLabel}>NOMBRE</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={displayName}
+            onChangeText={setDisplayName}
+            placeholder="p. ej. Alex Turner"
+            placeholderTextColor="#3a3a3a"
+            autoCorrect={false}
+          />
+        </View>
+
         {/* ── Nombre de usuario ── */}
         <View style={styles.card}>
           <Text style={styles.fieldLabel}>NOMBRE DE USUARIO</Text>
@@ -238,7 +364,7 @@ export default function ProfileScreen() {
             style={styles.fieldInput}
             value={username}
             onChangeText={setUsername}
-            placeholder="p. ej. Alex Turner"
+            placeholder="p. ej. alexturner"
             placeholderTextColor="#3a3a3a"
             autoCapitalize="none"
             autoCorrect={false}
@@ -330,6 +456,17 @@ export default function ProfileScreen() {
 
           <View style={styles.divider} />
 
+          <Text style={styles.fieldLabel}>BARRIO</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={neighborhood}
+            onChangeText={setNeighborhood}
+            placeholder="p. ej. Palermo"
+            placeholderTextColor="#3a3a3a"
+          />
+
+          <View style={styles.divider} />
+
           <Text style={styles.fieldLabel}>¿CUÁNDO ESTÁS DISPONIBLE?</Text>
           <View style={styles.chipRow}>
             {AVAILABILITY_OPTIONS.map(av => {
@@ -359,6 +496,79 @@ export default function ProfileScreen() {
             multiline
             numberOfLines={3}
             textAlignVertical="top"
+          />
+        </View>
+
+        {/* ── Redes y plataformas ── */}
+        <Text style={styles.sectionHeader}>🔗  Redes y plataformas</Text>
+
+        <View style={styles.card}>
+          <Text style={styles.fieldLabel}>SPOTIFY</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={spotifyUrl}
+            onChangeText={setSpotifyUrl}
+            placeholder="https://open.spotify.com/artist/..."
+            placeholderTextColor="#3a3a3a"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+
+          <View style={styles.divider} />
+
+          <Text style={styles.fieldLabel}>YOUTUBE</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={youtubeUrl}
+            onChangeText={setYoutubeUrl}
+            placeholder="https://youtube.com/@..."
+            placeholderTextColor="#3a3a3a"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+
+          <View style={styles.divider} />
+
+          <Text style={styles.fieldLabel}>SOUNDCLOUD</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={soundcloudUrl}
+            onChangeText={setSoundcloudUrl}
+            placeholder="https://soundcloud.com/..."
+            placeholderTextColor="#3a3a3a"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+
+          <View style={styles.divider} />
+
+          <Text style={styles.fieldLabel}>BANDCAMP</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={bandcampUrl}
+            onChangeText={setBandcampUrl}
+            placeholder="https://tubanda.bandcamp.com"
+            placeholderTextColor="#3a3a3a"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+
+          <View style={styles.divider} />
+
+          <Text style={styles.fieldLabel}>INSTAGRAM</Text>
+          <TextInput
+            style={styles.fieldInput}
+            value={instagramUrl}
+            onChangeText={setInstagramUrl}
+            placeholder="https://instagram.com/..."
+            placeholderTextColor="#3a3a3a"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
           />
         </View>
 
@@ -521,6 +731,70 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginBottom: 2,
   },
+
+  // Invitaciones a bandas
+  invitationRow: { flexDirection: 'row', gap: 12 },
+  invitationAvatar: { width: 44, height: 44, borderRadius: 12 },
+  invitationAvatarPlaceholder: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  invitationInitial: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
+  invitationInfo: { flex: 1, gap: 3 },
+  invitationBandName: { color: '#fff', fontSize: 15, fontWeight: '700' },
+  invitationMeta: { color: '#666', fontSize: 12 },
+  invitationMessage: { color: '#999', fontSize: 13, fontStyle: 'italic', marginTop: 2 },
+  invitationActions: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  invitationRejectBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: '#2a2a2a',
+    borderRadius: 10,
+    paddingVertical: 9,
+    alignItems: 'center',
+  },
+  invitationRejectText: { color: '#888', fontSize: 13, fontWeight: '600' },
+  invitationAcceptBtn: {
+    flex: 1,
+    backgroundColor: '#7c3aed',
+    borderRadius: 10,
+    paddingVertical: 9,
+    alignItems: 'center',
+  },
+  invitationAcceptText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+
+  // Sos parte de
+  bandsScroll: { gap: 10, paddingRight: 4 },
+  bandCard: {
+    width: 88,
+    alignItems: 'center',
+    gap: 6,
+  },
+  bandAvatar: { width: 64, height: 64, borderRadius: 16 },
+  bandAvatarPlaceholder: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bandAvatarInitial: { color: '#fff', fontSize: 22, fontWeight: 'bold' },
+  bandName: { color: '#fff', fontSize: 12, fontWeight: '600', textAlign: 'center' },
+  bandRole: { color: '#666', fontSize: 11 },
+  createBandBtn: {
+    borderWidth: 1.5,
+    borderColor: '#2a2a2a',
+    borderStyle: 'dashed',
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  createBandBtnText: { color: '#7c3aed', fontSize: 14, fontWeight: '700' },
 
   // Location row
   locationRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
