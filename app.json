@@ -12,7 +12,7 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Artizone necesita tu ubicación para mostrarte músicos cercanos."
       },
-      "bundleIdentifier": "com.anonymous.ArtizoneApp"
+      "bundleIdentifier": "com.artizone.app"
     },
     "android": {
       "adaptiveIcon": {
